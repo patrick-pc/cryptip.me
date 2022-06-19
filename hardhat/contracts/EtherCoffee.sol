@@ -1,14 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "hardhat/console.sol";
-
-error EtherCoffee__PriceMustBeAboveZero();
+error EtherCoffee__ValueMustBeAboveZero();
 error EtherCoffee__NoProceeds();
 
+/// @title Ether Coffee
+/// @author web3slinger
+/// @notice This contract is for creators and artists to accept support by receiving ether
 contract EtherCoffee {
+    /// @notice Mapping user address to proceeds
     mapping(address => uint256) private s_proceeds;
 
+    /// @notice This event is emitted when the contract receives an ether
+    /// @dev Using events to get the sender message and details using an indexing protocol
+    /// @param sender Sender address
+    /// @param amount The amount
+    /// @param timestamp Transaction timestamp
+    /// @param name Name of the sender
+    /// @param message Message from the sender
     event CoffeeBought(
         address indexed sender,
         uint256 indexed amount,
@@ -17,18 +26,26 @@ contract EtherCoffee {
         string message
     );
 
+    /// @notice Sends ether to the contract
+    /// @dev Using pull over push method
+    /// @param userAddress Address that will receive the ether
+    /// @param name Name of the sender
+    /// @param message Message from the sender
     function buyCoffee(
-        address _user,
-        string memory _name,
-        string memory _message
+        address userAddress,
+        string memory name,
+        string memory message
     ) public payable {
         if (msg.value <= 0) {
-            revert EtherCoffee__PriceMustBeAboveZero();
+            revert EtherCoffee__ValueMustBeAboveZero();
         }
-        s_proceeds[_user] += msg.value;
-        emit CoffeeBought(msg.sender, msg.value, block.timestamp, _name, _message);
+        // Could just send the money...
+        // https://fravoll.github.io/solidity-patterns/pull_over_push.html
+        s_proceeds[userAddress] += msg.value;
+        emit CoffeeBought(msg.sender, msg.value, block.timestamp, name, message);
     }
 
+    /// @notice Gets the amount that an address have
     function withdrawProceeds() external {
         uint256 proceeds = s_proceeds[msg.sender];
         if (proceeds <= 0) {
@@ -39,7 +56,8 @@ contract EtherCoffee {
         require(success, "Transfer failed");
     }
 
-    function getProceeds(address user) external view returns (uint256) {
-        return s_proceeds[user];
+    /// @return User proceeds of this contract
+    function getProceeds(address userAddress) external view returns (uint256) {
+        return s_proceeds[userAddress];
     }
 }
