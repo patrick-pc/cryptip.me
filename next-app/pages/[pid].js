@@ -1,16 +1,18 @@
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
-import { useProvider, useSigner, useContract, useAccount } from 'wagmi'
+import { useAccount, useProvider, useSigner, useContract } from 'wagmi'
+import { useQuery } from '@apollo/client'
 import { CONTRACT_ADDRESS, ABI } from '../constants'
+import { GET_TIPS } from '../constants/subgraphQueries'
 import Header from '../components/Header'
 import makeBlockie from 'ethereum-blockies-base64'
 
 const Profile = () => {
   const { pid } = useRouter().query
+  const { data: connectedAccount } = useAccount()
   const provider = useProvider()
   const signer = useSigner()
-  const { data: connectedAccount } = useAccount()
 
   const [ens, setEns] = useState()
   const [ensAvatar, setEnsAvatar] = useState()
@@ -73,6 +75,8 @@ const Profile = () => {
     signerOrProvider: signer.data || provider,
   })
 
+  const { data } = useQuery(GET_TIPS({ address: walletAddress }))
+
   const sendTip = async () => {
     const tip = ethers.utils.parseEther('0.1')
 
@@ -122,6 +126,18 @@ const Profile = () => {
             </>
           )}
         </div>
+
+        {data &&
+          data.tips.map((tip) => {
+            return (
+              <ul key={tip.id}>
+                <li>{tip.name}</li>
+                <li>{tip.message}</li>
+                <li>{tip.amount}</li>
+                <li>{tip.timestamp}</li>
+              </ul>
+            )
+          })}
       </div>
     </>
   )

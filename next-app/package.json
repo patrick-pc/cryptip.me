@@ -9,10 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@apollo/client": "^3.6.8",
     "@rainbow-me/rainbowkit": "^0.3.1",
     "daisyui": "^2.15.4",
     "ethereum-blockies-base64": "^1.0.2",
     "ethers": "^5.6.8",
+    "graphql": "^16.5.0",
     "next": "^12.1.6",
     "react": "^18.2.0",
     "react-blockies": "^1.4.1",
