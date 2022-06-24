@@ -2,11 +2,13 @@ import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 import { useAccount, useProvider, useSigner, useContract } from 'wagmi'
-import { useQuery } from '@apollo/client'
 import { CONTRACT_ADDRESS, ABI } from '../constants'
-import { GET_TIPS } from '../constants/subgraphQueries'
-import Header from '../components/Header'
-import makeBlockie from 'ethereum-blockies-base64'
+import { Header } from '../components/Header'
+import { Avatar } from '../components/Avatar'
+import { TipCard } from '../components/TipCard'
+import { validateAddress } from '../utils/validateAddress'
+import { shortenAddress } from '../utils/shortenAddress'
+import { getTips } from '../data/tips'
 
 const Profile = () => {
   const { pid } = useRouter().query
@@ -15,59 +17,32 @@ const Profile = () => {
   const signer = useSigner()
 
   const [ens, setEns] = useState()
-  const [ensAvatar, setEnsAvatar] = useState()
   const [walletAddress, setWalletAddress] = useState()
-  const [isFetching, setIsFetching] = useState(false)
+  // const [isOwnAddress, setIsOwnAddress] = useState(false)
+  // const [isFetching, setIsFetching] = useState(false)
 
-  const isOwnAccount = () => {
-    return connectedAccount?.address === walletAddress
-  }
+  const [amount, setAmount] = useState('0.01')
+  const [name, setName] = useState('')
+  const [message, setMessage] = useState('')
 
-  // TODO: Create custom hook for addresses
-  const validateAddress = async () => {
-    setIsFetching(true)
-    if (pid.includes('.eth')) {
-      // Check if the ens is valid
-      const validAddress = await provider.resolveName(pid)
-
-      if (validAddress) {
-        setWalletAddress(validAddress)
-        setEns(pid)
-
-        // Get ens avatar
-        const ensAvatar = await provider.getAvatar(pid)
-        if (ensAvatar) setEnsAvatar(ensAvatar)
-      } else {
-        alert('Address not found')
-      }
-    } else {
-      // Check if the address is valid if not using ens
-      const validAddress = ethers.utils.isAddress(pid)
-
-      if (validAddress) {
-        setWalletAddress(pid)
-
-        // Check if the address has ens
-        const ens = await provider.lookupAddress(pid)
-        if (ens) {
-          setEns(ens)
-
-          // Get ens avatar
-          const ensAvatar = await provider.getAvatar(pid)
-          if (ensAvatar) setEnsAvatar(ensAvatar)
-        }
-      } else {
-        alert('Address not found')
-      }
-    }
-    setIsFetching(false)
-  }
-
+  // Check if the address is valid
+  const { validAddress, ensName } = validateAddress(pid)
   useEffect(() => {
     if (!pid) return
 
-    validateAddress()
+    if (validAddress) {
+      setWalletAddress(validAddress)
+      setEns(ensName)
+    }
   }, [pid])
+
+  // Check if the connected user owns the wallet address
+  const isOwnAddress = () => {
+    return connectedAccount?.address === walletAddress
+  }
+
+  // Get tips from subgraph query
+  const { data } = getTips({ address: walletAddress })
 
   const cryptipContract = useContract({
     addressOrName: CONTRACT_ADDRESS,
@@ -75,14 +50,15 @@ const Profile = () => {
     signerOrProvider: signer.data || provider,
   })
 
-  const { data } = useQuery(GET_TIPS({ address: walletAddress }))
-
   const sendTip = async () => {
-    const tip = ethers.utils.parseEther('0.1')
-
-    const txResponse = await cryptipContract.sendTip(walletAddress, '', '', {
-      value: tip,
-    })
+    const txResponse = await cryptipContract.sendTip(
+      walletAddress,
+      name,
+      message,
+      {
+        value: ethers.utils.parseEther(amount),
+      }
+    )
     await txResponse.wait()
     alert('Tip sent!')
   }
@@ -101,21 +77,74 @@ const Profile = () => {
   return (
     <>
       <Header />
-      <div className='flex flex-col items-center justify-center mt-16'>
-        <h2>{ens && ens}</h2>
-        <h3>{walletAddress && walletAddress}</h3>
-        <div>{ensAvatar && <img src={ensAvatar} />}</div>
-        <div>
-          {walletAddress && !ensAvatar && (
-            <img src={makeBlockie(walletAddress)} />
-          )}
+
+      <div className='flex flex-col gap-6 md:flex-row items-center md:items-start justify-center w-full h-full bg-base-200'>
+        <div className='flex flex-col items-center justify-center bg-base-100 rounded-box md:w-96 gap-4 m-4 p-6 pt-12 shadow-xl'>
+          <Avatar address={walletAddress} size={100} squircle={true} />
+
+          <div className='flex flex-col items-center justify-center'>
+            {walletAddress && !ens ? (
+              <h1 className='text-xl font-bold'>
+                {shortenAddress(walletAddress)}
+              </h1>
+            ) : (
+              <>
+                <h1 className='text-2xl font-bold mb-2'>{ens}</h1>
+                <span className='bg-base-200 py-1 px-2 rounded-md text-xs font-mono'>
+                  {shortenAddress(walletAddress)}
+                </span>
+              </>
+            )}
+          </div>
+
+          <form
+            className='flex flex-col gap-4'
+            onSubmit={(e) => e.preventDefault()}
+          >
+            <input
+              type='text'
+              className='text-center text-5xl font-extrabold bg-base-100 w-full focus:outline-none my-4'
+              defaultValue={`Ξ${amount}`}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+            <button
+              onClick={sendTip}
+              className='btn btn-block btn-lg bg-black rounded-box text-sm'
+            >
+              Send Tip
+            </button>
+            <input
+              type='text'
+              placeholder='Name (optional)'
+              className='input input-bordered w-full focus:outline-none'
+              onChange={(e) => setName(e.target.value)}
+            />
+            <textarea
+              className='textarea input-bordered w-full focus:outline-none'
+              placeholder='Message (optional)'
+              onChange={(e) => setMessage(e.target.value)}
+            ></textarea>
+          </form>
         </div>
 
+        <div className='flex flex-col gap-4 m-4 md:w-96'>
+          <h2 className='text-xl font-extrabold'>Recent Supporters</h2>
+
+          <div className='flex flex-col gap-4 md:h-[590.5px] overflow-auto'>
+            {data && data.tips.length !== 0 ? (
+              data.tips.map((tip) => {
+                return <TipCard key={tip.id} tip={tip} />
+              })
+            ) : (
+              <div>No tippers yet...</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className='flex flex-col items-center justify-between mt-16'>
         <div className='flex gap-4 mt-16'>
-          <button onClick={sendTip} className='btn btn-primary'>
-            Tip
-          </button>
-          {isOwnAccount() && (
+          {isOwnAddress() && (
             <>
               <button onClick={getTipBalance} className='btn btn-secondary'>
                 Get Tip Balance
@@ -126,18 +155,6 @@ const Profile = () => {
             </>
           )}
         </div>
-
-        {data &&
-          data.tips.map((tip) => {
-            return (
-              <ul key={tip.id}>
-                <li>{tip.name}</li>
-                <li>{tip.message}</li>
-                <li>{tip.amount}</li>
-                <li>{tip.timestamp}</li>
-              </ul>
-            )
-          })}
       </div>
     </>
   )
