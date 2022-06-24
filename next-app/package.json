@@ -21,6 +21,8 @@
     "react-blockies": "^1.4.1",
     "react-currency-input-field": "^3.6.4",
     "react-dom": "^18.2.0",
+    "react-fade-in": "^2.0.1",
+    "react-hot-toast": "^2.2.0",
     "wagmi": "^0.4.12"
   },
   "devDependencies": {

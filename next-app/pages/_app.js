@@ -6,6 +6,7 @@ import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
 import { useState, useEffect } from 'react'
 import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client'
+import { Toaster } from 'react-hot-toast'
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
@@ -50,6 +51,7 @@ function MyApp({ Component, pageProps }) {
         <WagmiConfig client={wagmiClient}>
           <RainbowKitProvider chains={chains}>
             <Component {...pageProps} />
+            <Toaster />
           </RainbowKitProvider>
         </WagmiConfig>
       </ApolloProvider>
