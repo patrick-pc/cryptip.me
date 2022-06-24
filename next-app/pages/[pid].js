@@ -9,6 +9,7 @@ import { TipCard } from '../components/TipCard'
 import { validateAddress } from '../utils/validateAddress'
 import { shortenAddress } from '../utils/shortenAddress'
 import { getTips } from '../data/tips'
+import CurrencyInput from 'react-currency-input-field'
 
 const Profile = () => {
   const { pid } = useRouter().query
@@ -101,11 +102,13 @@ const Profile = () => {
             className='flex flex-col gap-4'
             onSubmit={(e) => e.preventDefault()}
           >
-            <input
-              type='text'
+            <CurrencyInput
               className='text-center text-5xl font-extrabold bg-base-100 w-full focus:outline-none my-4'
-              defaultValue={`Ξ${amount}`}
+              prefix='Ξ'
+              defaultValue={`${amount}`}
+              decimalsLimit={18}
               onChange={(e) => setAmount(e.target.value)}
+              autoFocus={true}
             />
             <button
               onClick={sendTip}
@@ -118,11 +121,13 @@ const Profile = () => {
               placeholder='Name (optional)'
               className='input input-bordered w-full focus:outline-none'
               onChange={(e) => setName(e.target.value)}
+              maxLength={20}
             />
             <textarea
               className='textarea input-bordered w-full focus:outline-none'
               placeholder='Message (optional)'
               onChange={(e) => setMessage(e.target.value)}
+              maxLength={150}
             ></textarea>
           </form>
         </div>
