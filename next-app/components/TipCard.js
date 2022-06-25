@@ -1,9 +1,9 @@
 import moment from 'moment'
 import { ethers } from 'ethers'
-import { Avatar } from './Avatar'
 import { shortenAddress } from '../utils/shortenAddress'
+import Avatar from './Avatar'
 
-export const TipCard = ({ tip }) => {
+const TipCard = ({ tip }) => {
   return (
     <div className='flex flex-row bg-base-100 rounded-box gap-4 p-4'>
       <Avatar address={tip.sender} size={40} />
@@ -34,3 +34,5 @@ export const TipCard = ({ tip }) => {
     </div>
   )
 }
+
+export default TipCard

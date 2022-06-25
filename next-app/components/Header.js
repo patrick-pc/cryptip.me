@@ -1,7 +1,7 @@
 import NextLink from 'next/link'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 
-export const Header = () => {
+const Header = () => {
   return (
     <div className='navbar bg-base-200 p-6 mb-6'>
       <div className='flex-1'>
@@ -15,3 +15,5 @@ export const Header = () => {
     </div>
   )
 }
+
+export default Header

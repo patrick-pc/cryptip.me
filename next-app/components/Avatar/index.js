@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useEnsAvatar } from 'wagmi'
 import { emojiAvatarForAddress } from './emojiAvatarForAddress'
 
-export const Avatar = ({ address, size, squircle }) => {
+const Avatar = ({ address, size, squircle }) => {
   const { data: ensAvatar } = useEnsAvatar({
     addressOrName: address,
   })
@@ -42,3 +42,5 @@ export const Avatar = ({ address, size, squircle }) => {
     </div>
   )
 }
+
+export default Avatar
