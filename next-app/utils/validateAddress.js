@@ -1,12 +1,12 @@
 import { useEnsAddress, useEnsName } from 'wagmi'
 
-export const validateAddress = (address) => {
-  const { data: validAddress } = useEnsAddress({
-    name: address,
+export const validateAddress = (string) => {
+  const { data: address } = useEnsAddress({
+    name: string,
   })
   const { data: ensName } = useEnsName({
-    address: validAddress,
+    address: address,
   })
 
-  return { validAddress, ensName }
+  return { address, ensName }
 }
