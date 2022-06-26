@@ -14,6 +14,7 @@ import { copyAddress } from '../utils/copyAddress'
 import Avatar from './Avatar'
 import CurrencyInput from 'react-currency-input-field'
 import toast from 'react-hot-toast'
+import { Orbit } from '@uiball/loaders'
 
 const ProfileCard = ({ address, ensName }) => {
   const { data: connectedAccount } = useAccount()
@@ -26,6 +27,7 @@ const ProfileCard = ({ address, ensName }) => {
   const [tipBalance, setTipBalance] = useState(0)
   const [totalTippers, setTotalTippers] = useState(0)
   const [totalTips, setTotalTips] = useState(0)
+  const [isMining, setIsMining] = useState(false)
 
   const cryptipContract = useContract({
     addressOrName: CONTRACT_ADDRESS,
@@ -51,7 +53,10 @@ const ProfileCard = ({ address, ensName }) => {
             value: ethers.utils.parseEther(amount),
           }
         )
+        setIsMining(true)
         await txResponse.wait()
+        setIsMining(false)
+
         toast('Tip sent!', {
           icon: '🎉',
         })
@@ -91,7 +96,10 @@ const ProfileCard = ({ address, ensName }) => {
   const withdrawTips = async () => {
     try {
       const txResponse = await cryptipContract.withdrawTips()
+      setIsMining(true)
       await txResponse.wait()
+      setIsMining(false)
+
       toast('Tips sent to your wallet!', {
         icon: '💸',
       })
@@ -137,7 +145,7 @@ const ProfileCard = ({ address, ensName }) => {
         setTotalTips(tipAmount)
       }
     }
-  }, [isOwnAddress(), data])
+  }, [isOwnAddress(), amount, data])
 
   return (
     <div className='flex flex-col items-center justify-center gap-4'>
@@ -197,9 +205,9 @@ const ProfileCard = ({ address, ensName }) => {
             <button
               onClick={withdrawTips}
               className='btn btn-block btn-lg bg-black rounded-box text-sm'
-              disabled={tipBalance == 0}
+              disabled={isMining || tipBalance == 0}
             >
-              Withdraw Tips
+              {isMining ? <Orbit /> : 'Withdraw Tips'}
             </button>
             <div className='stats stats-horizontal border text-sm'>
               <div className='stat'>
@@ -230,9 +238,9 @@ const ProfileCard = ({ address, ensName }) => {
             <button
               onClick={sendTip}
               className='btn btn-block btn-lg bg-black rounded-box text-sm'
-              disabled={!amount || amount == 0}
+              disabled={isMining || !amount || amount == 0}
             >
-              Send Tip
+              {isMining ? <Orbit /> : 'Send Tip'}
             </button>
             <input
               type='text'
