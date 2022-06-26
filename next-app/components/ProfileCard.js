@@ -10,6 +10,7 @@ import {
 import { CONTRACT_ADDRESS, ABI } from '../constants'
 import { getTips } from '../data/tips'
 import { shortenAddress } from '../utils/shortenAddress'
+import { copyAddress } from '../utils/copyAddress'
 import Avatar from './Avatar'
 import CurrencyInput from 'react-currency-input-field'
 import toast from 'react-hot-toast'
@@ -144,13 +145,29 @@ const ProfileCard = ({ address, ensName }) => {
 
       <div className='flex flex-col items-center justify-center'>
         {address && !ensName ? (
-          <h1 className='text-xl font-bold'>{shortenAddress(address)}</h1>
+          <div
+            className='cursor-pointer tooltip tooltip-right'
+            data-tip='Copy address'
+            onClick={() => {
+              copyAddress(address)
+            }}
+          >
+            <h1 className='text-xl font-bold'>{shortenAddress(address)}</h1>
+          </div>
         ) : (
           <>
             <h1 className='text-2xl font-bold mb-2'>{ensName}</h1>
-            <span className='bg-base-200 py-1 px-2 rounded-md text-xs font-mono'>
-              {shortenAddress(address)}
-            </span>
+            <div
+              className='cursor-pointer tooltip tooltip-right'
+              data-tip='Copy address'
+              onClick={() => {
+                copyAddress(address)
+              }}
+            >
+              <span className='bg-base-200 py-1 px-2 rounded-md text-xs font-mono'>
+                {shortenAddress(address)}
+              </span>
+            </div>
           </>
         )}
       </div>

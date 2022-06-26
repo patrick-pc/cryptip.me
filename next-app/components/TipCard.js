@@ -1,6 +1,7 @@
 import moment from 'moment'
 import { ethers } from 'ethers'
 import { shortenAddress } from '../utils/shortenAddress'
+import { copyAddress } from '../utils/copyAddress'
 import Avatar from './Avatar'
 
 const TipCard = ({ tip }) => {
@@ -25,9 +26,17 @@ const TipCard = ({ tip }) => {
           </div>
         </div>
         <div>
-          <span className='bg-base-200 py-1 px-2 rounded-md text-2xs font-mono text-gray-400'>
-            {shortenAddress(tip.sender)}
-          </span>
+          <div
+            className='text-2xs cursor-pointer tooltip'
+            data-tip='Copy address'
+            onClick={() => {
+              copyAddress(tip.sender)
+            }}
+          >
+            <span className='bg-base-200 py-1 px-2 rounded-md text-2xs font-mono text-gray-400'>
+              {shortenAddress(tip.sender)}
+            </span>
+          </div>
         </div>
         {tip.message && <div className='font-medium mt-4'>{tip.message}</div>}
       </div>
