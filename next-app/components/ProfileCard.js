@@ -1,7 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ethers } from 'ethers'
-import { useAccount, useProvider, useSigner, useContract } from 'wagmi'
+import {
+  useAccount,
+  useProvider,
+  useSigner,
+  useContract,
+  useBalance,
+} from 'wagmi'
 import { CONTRACT_ADDRESS, ABI } from '../constants'
+import { getTips } from '../data/tips'
 import { shortenAddress } from '../utils/shortenAddress'
 import Avatar from './Avatar'
 import CurrencyInput from 'react-currency-input-field'
@@ -15,10 +22,9 @@ const ProfileCard = ({ address, ensName }) => {
   const [amount, setAmount] = useState('0.01')
   const [name, setName] = useState('')
   const [message, setMessage] = useState('')
-
-  const isOwnAddress = () => {
-    return connectedAccount?.address === address
-  }
+  const [tipBalance, setTipBalance] = useState(0)
+  const [totalTippers, setTotalTippers] = useState(0)
+  const [totalTips, setTotalTips] = useState(0)
 
   const cryptipContract = useContract({
     addressOrName: CONTRACT_ADDRESS,
@@ -27,27 +33,110 @@ const ProfileCard = ({ address, ensName }) => {
   })
 
   const sendTip = async () => {
-    const txResponse = await cryptipContract.sendTip(address, name, message, {
-      value: ethers.utils.parseEther(amount),
-    })
-    await txResponse.wait()
-    toast.success('Tip sent!')
+    if (connectedAccount) {
+      if (accountBalance.formatted == 0 || accountBalance.formatted <= amount) {
+        toast('Insufficient funds.', {
+          icon: '✋',
+        })
+        return
+      }
+
+      try {
+        const txResponse = await cryptipContract.sendTip(
+          address,
+          name,
+          message,
+          {
+            value: ethers.utils.parseEther(amount),
+          }
+        )
+        await txResponse.wait()
+        toast('Tip sent!', {
+          icon: '🎉',
+        })
+      } catch (error) {
+        console.error(error)
+
+        if (error.code == 4001) {
+          toast.error(error.message)
+        } else {
+          toast.error('Something went wrong.')
+        }
+      }
+    } else {
+      toast('Connect wallet to continue.', {
+        icon: '🦊',
+      })
+
+      return
+    }
   }
 
   const getTipBalance = async (address) => {
-    const tipBalance = await cryptipContract.getTipBalance(address)
-    // setTipBalance(ethers.utils.formatEther(tipBalance))
-    toast.success(ethers.utils.formatEther(tipBalance))
-    if (tipBalance) {
+    try {
+      const tipBalance = await cryptipContract.getTipBalance(address)
       setTipBalance(ethers.utils.formatEther(tipBalance))
+    } catch (error) {
+      console.error(error)
+
+      if (error.code == 4001) {
+        toast.error(error.message)
+      } else {
+        toast.error('Something went wrong.')
+      }
     }
   }
 
   const withdrawTips = async () => {
-    const txResponse = await cryptipContract.withdrawTips()
-    await txResponse.wait()
-    toast.success('Tips sent to your wallet!')
+    try {
+      const txResponse = await cryptipContract.withdrawTips()
+      await txResponse.wait()
+      toast('Tips sent to your wallet!', {
+        icon: '💸',
+      })
+    } catch (error) {
+      console.error(error)
+
+      if (error.code == 4001) {
+        toast.error(error.message)
+      } else {
+        toast.error('Something went wrong.')
+      }
+    }
   }
+
+  // Check if the user owns the address
+  const isOwnAddress = () => {
+    if (!connectedAccount) return
+    return address === connectedAccount.address
+  }
+
+  // Get tips from subgraph query
+  const { data } = getTips({ address })
+
+  // Get account balance
+  const { data: accountBalance } = useBalance({
+    addressOrName: connectedAccount?.address,
+  })
+
+  useEffect(() => {
+    if (isOwnAddress()) {
+      getTipBalance(address)
+
+      // Set total tippers and total tips
+      if (data) {
+        let tipperCount = 0
+        let tipAmount = 0
+        data.tips.map((tip) => {
+          tipperCount += 1
+          tipAmount += parseFloat(ethers.utils.formatEther(tip.amount))
+        })
+
+        setTotalTippers(tipperCount)
+        setTotalTips(tipAmount)
+      }
+    }
+  }, [isOwnAddress(), data])
 
   return (
     <div className='flex flex-col items-center justify-center gap-4'>
@@ -70,37 +159,79 @@ const ProfileCard = ({ address, ensName }) => {
         className='flex flex-col gap-4'
         onSubmit={(e) => e.preventDefault()}
       >
-        <CurrencyInput
-          className='text-center text-5xl font-extrabold bg-base-100 w-full focus:outline-none my-4'
-          prefix='Ξ'
-          defaultValue={amount}
-          decimalsLimit={18}
-          onChange={(e) => setAmount(e.target.value)}
-          autoFocus={true}
-          disabled={isOwnAddress()}
-        />
-        <button
-          onClick={sendTip}
-          className='btn btn-block btn-lg bg-black rounded-box text-sm'
-          disabled={isOwnAddress()}
-        >
-          Send Tip
-        </button>
-        <input
-          type='text'
-          placeholder='Name (optional)'
-          className='input input-bordered w-full focus:outline-none'
-          onChange={(e) => setName(e.target.value)}
-          maxLength={20}
-          disabled={isOwnAddress()}
-        />
-        <textarea
-          className='textarea input-bordered w-full focus:outline-none'
-          placeholder='Message (optional)'
-          onChange={(e) => setMessage(e.target.value)}
-          maxLength={150}
-          disabled={isOwnAddress()}
-        ></textarea>
+        {isOwnAddress() ? (
+          <>
+            <CurrencyInput
+              className='text-center text-5xl text-black font-extrabold bg-base-100 w-full focus:outline-none my-4'
+              prefix='Ξ'
+              defaultValue={
+                tipBalance == 0
+                  ? 0
+                  : parseFloat(tipBalance).toFixed(3).slice(0, -1)
+              }
+              key={
+                tipBalance == 0
+                  ? 0
+                  : parseFloat(tipBalance).toFixed(3).slice(0, -1)
+              }
+              decimalsLimit={18}
+              readOnly={true}
+            />
+            <button
+              onClick={withdrawTips}
+              className='btn btn-block btn-lg bg-black rounded-box text-sm'
+              disabled={tipBalance == 0}
+            >
+              Withdraw Tips
+            </button>
+            <div className='stats stats-horizontal border text-sm'>
+              <div className='stat'>
+                <div className='stat-title'>Total Tippers</div>
+                <div className='stat-value'>{totalTippers}</div>
+              </div>
+
+              <div className='stat'>
+                <div className='stat-title'>Total Tips</div>
+                <div className='stat-value'>
+                  {totalTips == 0
+                    ? 0
+                    : parseFloat(totalTips).toFixed(3).slice(0, -1)}
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <CurrencyInput
+              className='text-center text-5xl text-black font-extrabold bg-base-100 w-full focus:outline-none my-4'
+              prefix='Ξ'
+              defaultValue={amount}
+              decimalsLimit={18}
+              onValueChange={(value) => setAmount(value)}
+              autoFocus={true}
+            />
+            <button
+              onClick={sendTip}
+              className='btn btn-block btn-lg bg-black rounded-box text-sm'
+              disabled={!amount || amount == 0}
+            >
+              Send Tip
+            </button>
+            <input
+              type='text'
+              placeholder='Name (optional)'
+              className='input input-bordered w-full focus:outline-none'
+              onChange={(e) => setName(e.target.value)}
+              maxLength={20}
+            />
+            <textarea
+              className='textarea input-bordered w-full focus:outline-none'
+              placeholder='Message (optional)'
+              onChange={(e) => setMessage(e.target.value)}
+              maxLength={150}
+            ></textarea>
+          </>
+        )}
       </form>
     </div>
   )

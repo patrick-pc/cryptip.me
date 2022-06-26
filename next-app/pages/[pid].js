@@ -13,7 +13,7 @@ const Profile = () => {
   const { address, ensName } = validateAddress(pid)
 
   // Get tips from subgraph query
-  const { data } = getTips({ address })
+  const { data } = getTips({ address: address, limit: 10 })
 
   if (!address) return <div>404</div>
   return (

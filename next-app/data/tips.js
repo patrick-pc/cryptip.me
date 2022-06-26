@@ -1,10 +1,10 @@
 import { gql, useQuery } from '@apollo/client'
 
-export const getTips = ({ address }) => {
+export const getTips = ({ address, limit }) => {
   const query = `
     {
       tips(
-        first: 10
+        ${limit ? `first: ${limit}` : ''}
         where: { receiver: "${address}" }
         orderBy: timestamp
         orderDirection: desc
@@ -20,6 +20,5 @@ export const getTips = ({ address }) => {
     }
   `
 
-  // return gql(query)
   return useQuery(gql(query))
 }
