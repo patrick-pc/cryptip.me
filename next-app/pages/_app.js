@@ -7,6 +7,7 @@ import { publicProvider } from 'wagmi/providers/public'
 import { useState, useEffect } from 'react'
 import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client'
 import { Toaster } from 'react-hot-toast'
+import Header from '../components/Header'
 import Footer from '../components/Footer'
 
 const client = new ApolloClient({
@@ -51,7 +52,8 @@ function MyApp({ Component, pageProps }) {
       <ApolloProvider client={client}>
         <WagmiConfig client={wagmiClient}>
           <RainbowKitProvider chains={chains}>
-            <div className='min-h-screen'>
+            <div className='min-h-screen w-full'>
+              <Header />
               <Component {...pageProps} />
               <Footer />
             </div>

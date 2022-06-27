@@ -1,9 +1,9 @@
 import { useRouter } from 'next/router'
 import { validateAddress } from '../utils/validateAddress'
 import { getTips } from '../data/tips'
-import Header from '../components/Header'
 import ProfileCard from '../components/ProfileCard'
 import TipCard from '../components/TipCard'
+import Custom404 from './404'
 import FadeIn from 'react-fade-in'
 
 const Profile = () => {
@@ -13,14 +13,11 @@ const Profile = () => {
   const { address, ensName } = validateAddress(pid)
 
   // Get tips from subgraph query
-  const { data } = getTips({ address: address, limit: 10 })
+  const { data } = getTips({ address, limit: 10 })
 
-  if (!address) return <div>404</div>
   return (
-    <>
-      <Header />
-
-      <FadeIn>
+    <FadeIn>
+      {address ? (
         <div className='flex flex-col gap-6 md:flex-row items-center md:items-start justify-center w-full h-full bg-base-200'>
           <div className='flex flex-col items-center justify-center bg-base-100 rounded-box md:w-96 gap-4 m-4 p-6 pt-12 shadow-xl'>
             <ProfileCard address={address} ensName={ensName} />
@@ -50,8 +47,10 @@ const Profile = () => {
             </div>
           </div>
         </div>
-      </FadeIn>
-    </>
+      ) : (
+        <Custom404 />
+      )}
+    </FadeIn>
   )
 }
 
