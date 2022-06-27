@@ -3,8 +3,8 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 const Header = () => {
   return (
-    <div className='navbar bg-base-200 p-6 mb-6'>
-      <div className='flex-1'>
+    <header className='flex flex-col items-center justify-between md:flex-row bg-base-200 gap-4 p-6 mb-6'>
+      <div className='flex'>
         <NextLink href='/'>
           <span className='font-bold text-2xl cursor-pointer'>cryptip.me</span>
         </NextLink>
@@ -12,7 +12,7 @@ const Header = () => {
       <div className='flex-none'>
         <ConnectButton />
       </div>
-    </div>
+    </header>
   )
 }
 

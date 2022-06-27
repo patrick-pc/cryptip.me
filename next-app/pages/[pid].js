@@ -66,7 +66,7 @@ const Profile = () => {
     <FadeIn>
       {address ? (
         <div className='flex flex-col gap-6 md:flex-row items-center md:items-start justify-center bg-base-200 h-full w-full pb-12'>
-          <div className='w-full md:w-96'>
+          <div className='w-full md:w-[450px]'>
             <ProfileCard
               cryptipContract={cryptipContract}
               address={address}
@@ -75,7 +75,7 @@ const Profile = () => {
             />
           </div>
 
-          <div className='w-full md:w-96'>
+          <div className='w-full md:w-[450px]'>
             <div className='flex flex-col gap-4 m-4'>
               <h2 className='text-xl font-extrabold'>Recent Supporters</h2>
 
