@@ -19,19 +19,19 @@ const TipCard = ({ tip }) => {
               Ξ{ethers.utils.formatEther(tip.amount)}
             </span>
           </div>
-          <div className='flex items-center font-light text-2xs text-gray-400'>
+          <div className='flex items-center text-2xs text-gray-400 font-light'>
             {moment(tip.timestamp * 1000).fromNow()}
           </div>
         </div>
         <div>
           <div
             className='text-2xs cursor-pointer tooltip'
-            data-tip='Copy address'
+            data-tip='Copy to clipboard'
             onClick={() => {
               copyAddress(tip.sender)
             }}
           >
-            <span className='bg-base-200 py-1 px-2 rounded-md text-2xs font-mono text-gray-400'>
+            <span className='bg-base-200 rounded-md text-2xs text-gray-400 font-mono py-1 px-2'>
               {shortenAddress(tip.sender)}
             </span>
           </div>
