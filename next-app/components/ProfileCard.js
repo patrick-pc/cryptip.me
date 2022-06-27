@@ -1,25 +1,22 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { ethers } from 'ethers'
-import {
-  useAccount,
-  useProvider,
-  useSigner,
-  useContract,
-  useBalance,
-} from 'wagmi'
-import { CONTRACT_ADDRESS, ABI } from '../constants'
+import { useAccount, useBalance } from 'wagmi'
 import { getTips } from '../data/tips'
 import { shortenAddress } from '../utils/shortenAddress'
 import { copyAddress } from '../utils/copyAddress'
+import { Orbit } from '@uiball/loaders'
 import Avatar from './Avatar'
 import CurrencyInput from 'react-currency-input-field'
 import toast from 'react-hot-toast'
-import { Orbit } from '@uiball/loaders'
 
-const ProfileCard = ({ address, ensName }) => {
+const ProfileCard = ({ cryptipContract, address, ensName, setIsTipSent }) => {
+  // Get account from provider
   const { data: connectedAccount } = useAccount()
-  const provider = useProvider()
-  const signer = useSigner()
+
+  // Get account balance
+  const { data: accountBalance } = useBalance({
+    addressOrName: connectedAccount?.address,
+  })
 
   const [amount, setAmount] = useState('0.01')
   const [name, setName] = useState('')
@@ -28,12 +25,6 @@ const ProfileCard = ({ address, ensName }) => {
   const [totalTippers, setTotalTippers] = useState(0)
   const [totalTips, setTotalTips] = useState(0)
   const [isMining, setIsMining] = useState(false)
-
-  const cryptipContract = useContract({
-    addressOrName: CONTRACT_ADDRESS,
-    contractInterface: ABI,
-    signerOrProvider: signer.data || provider,
-  })
 
   const sendTip = async () => {
     if (connectedAccount) {
@@ -55,8 +46,7 @@ const ProfileCard = ({ address, ensName }) => {
         )
         setIsMining(true)
         await txResponse.wait()
-        setIsMining(false)
-        setAmount('0.01')
+        setIsTipSent(true)
 
         toast('Tip sent!', {
           icon: '🎉',
@@ -70,6 +60,8 @@ const ProfileCard = ({ address, ensName }) => {
           toast.error('Something went wrong.')
         }
       }
+
+      setIsMining(false)
     } else {
       toast('Connect wallet to continue.', {
         icon: '🦊',
@@ -99,7 +91,6 @@ const ProfileCard = ({ address, ensName }) => {
       const txResponse = await cryptipContract.withdrawTips()
       setIsMining(true)
       await txResponse.wait()
-      setIsMining(false)
       setTipBalance(0)
 
       toast('Tips sent to your wallet!', {
@@ -114,6 +105,8 @@ const ProfileCard = ({ address, ensName }) => {
         toast.error('Something went wrong.')
       }
     }
+
+    setIsMining(false)
   }
 
   // Check if the user owns the address
@@ -125,13 +118,6 @@ const ProfileCard = ({ address, ensName }) => {
   // Get tips from subgraph query
   const { data } = getTips({ address })
 
-  // const { data } = useMemo(() => getTips({ address }), [amount])
-
-  // Get account balance
-  const { data: accountBalance } = useBalance({
-    addressOrName: connectedAccount?.address,
-  })
-
   useEffect(() => {
     if (isOwnAddress()) {
       getTipBalance(address)
@@ -140,6 +126,7 @@ const ProfileCard = ({ address, ensName }) => {
       if (data) {
         let tipperCount = 0
         let tipAmount = 0
+
         data.tips.map((tip) => {
           tipperCount += 1
           tipAmount += parseFloat(ethers.utils.formatEther(tip.amount))
@@ -152,14 +139,14 @@ const ProfileCard = ({ address, ensName }) => {
   }, [isOwnAddress(), tipBalance, data])
 
   return (
-    <div className='flex flex-col items-center justify-center gap-4'>
+    <div className='flex flex-col items-center justify-center bg-base-100 rounded-box shadow-xl gap-4 m-4 p-6 pt-12'>
       <Avatar address={address} size={100} squircle={true} />
 
-      <div className='flex flex-col items-center justify-center'>
+      <div className='flex flex-col'>
         {address && !ensName ? (
           <div
             className='cursor-pointer tooltip tooltip-right'
-            data-tip='Copy address'
+            data-tip='Copy to clipboard'
             onClick={() => {
               copyAddress(address)
             }}
@@ -171,12 +158,12 @@ const ProfileCard = ({ address, ensName }) => {
             <h1 className='text-2xl font-bold mb-2'>{ensName}</h1>
             <div
               className='cursor-pointer tooltip tooltip-right'
-              data-tip='Copy address'
+              data-tip='Copy to clipboard'
               onClick={() => {
                 copyAddress(address)
               }}
             >
-              <span className='bg-base-200 py-1 px-2 rounded-md text-xs font-mono'>
+              <span className='bg-base-200 rounded-md text-xs font-mono py-1 px-2'>
                 {shortenAddress(address)}
               </span>
             </div>
