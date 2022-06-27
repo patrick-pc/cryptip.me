@@ -20,9 +20,7 @@ const TipCard = ({ tip }) => {
             </span>
           </div>
           <div className='flex items-center font-light text-2xs text-gray-400'>
-            {moment(tip.timestamp * 1000)
-              .startOf('hour')
-              .fromNow()}
+            {moment(tip.timestamp * 1000).fromNow()}
           </div>
         </div>
         <div>
