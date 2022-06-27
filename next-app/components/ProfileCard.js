@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { ethers } from 'ethers'
 import {
   useAccount,
@@ -56,6 +56,7 @@ const ProfileCard = ({ address, ensName }) => {
         setIsMining(true)
         await txResponse.wait()
         setIsMining(false)
+        setAmount('0.01')
 
         toast('Tip sent!', {
           icon: '🎉',
@@ -99,6 +100,7 @@ const ProfileCard = ({ address, ensName }) => {
       setIsMining(true)
       await txResponse.wait()
       setIsMining(false)
+      setTipBalance(0)
 
       toast('Tips sent to your wallet!', {
         icon: '💸',
@@ -123,6 +125,8 @@ const ProfileCard = ({ address, ensName }) => {
   // Get tips from subgraph query
   const { data } = getTips({ address })
 
+  // const { data } = useMemo(() => getTips({ address }), [amount])
+
   // Get account balance
   const { data: accountBalance } = useBalance({
     addressOrName: connectedAccount?.address,
@@ -145,7 +149,7 @@ const ProfileCard = ({ address, ensName }) => {
         setTotalTips(tipAmount)
       }
     }
-  }, [isOwnAddress(), amount, data])
+  }, [isOwnAddress(), tipBalance, data])
 
   return (
     <div className='flex flex-col items-center justify-center gap-4'>
