@@ -6,7 +6,7 @@ error CrypTip__NoTips();
 
 /// @title cryptip.me
 /// @author web3slinger
-/// @notice This contract is for creators and artists to accept support by receiving ether
+/// @notice This contract is for creators and artists to accept tips in ETH
 contract CrypTip {
     /// @notice Mapping user address to proceeds
     mapping(address => uint256) private s_tips;
@@ -16,14 +16,12 @@ contract CrypTip {
     /// @param receiver Receiver address
     /// @param sender Sender address
     /// @param amount The amount
-    /// @param timestamp Transaction timestamp
     /// @param name Name of the sender
     /// @param message Message from the sender
     event Tip(
         address indexed receiver,
         address indexed sender,
         uint256 indexed amount,
-        uint256 timestamp,
         string name,
         string message
     );
@@ -37,13 +35,13 @@ contract CrypTip {
         address receiver,
         string memory name,
         string memory message
-    ) public payable {
+    ) external payable {
         if (msg.value <= 0) revert CrypTip__ValueMustBeAboveZero();
 
         // Could just send the money...
         // https://fravoll.github.io/solidity-patterns/pull_over_push.html
         s_tips[receiver] += msg.value;
-        emit Tip(receiver, msg.sender, msg.value, block.timestamp, name, message);
+        emit Tip(receiver, msg.sender, msg.value, name, message);
     }
 
     /// @notice Transfers the amount that an address have
@@ -57,7 +55,7 @@ contract CrypTip {
     }
 
     /// @return Tip balance of the address
-    function getTipBalance(address _address) external view returns (uint256) {
-        return s_tips[_address];
+    function getTipBalance(address walletAddress) external view returns (uint256) {
+        return s_tips[walletAddress];
     }
 }
