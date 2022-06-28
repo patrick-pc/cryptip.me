@@ -145,7 +145,7 @@ const ProfileCard = ({ cryptipContract, address, ensName, setIsTipSent }) => {
       <div className='flex flex-col'>
         {address && !ensName ? (
           <div
-            className='cursor-pointer tooltip tooltip-right'
+            className='cursor-pointer tooltip tooltip-bottom'
             data-tip='Copy to clipboard'
             onClick={() => {
               copyAddress(address)
@@ -157,7 +157,7 @@ const ProfileCard = ({ cryptipContract, address, ensName, setIsTipSent }) => {
           <>
             <h1 className='text-2xl font-bold mb-2'>{ensName}</h1>
             <div
-              className='cursor-pointer tooltip tooltip-right'
+              className='cursor-pointer tooltip tooltip-bottom'
               data-tip='Copy to clipboard'
               onClick={() => {
                 copyAddress(address)
