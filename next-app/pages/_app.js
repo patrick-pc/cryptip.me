@@ -59,7 +59,7 @@ function MyApp({ Component, pageProps }) {
                 name='description'
                 content='The friendly way to accept tips in ETH.'
               />
-              <link rel='icon' href='/favicon.ico' />
+              <link rel='icon' href='/ethereum.png' />
             </Head>
             <div className='min-h-screen w-full'>
               <Header />
