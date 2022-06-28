@@ -17,7 +17,7 @@ const client = new ApolloClient({
 })
 
 const { chains, provider } = configureChains(
-  [chain.mainnet, chain.rinkeby, chain.localhost],
+  [chain.mainnet],
   [
     alchemyProvider({ alchemyId: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY }),
     publicProvider(),
