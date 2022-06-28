@@ -9,6 +9,7 @@ import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client'
 import { Toaster } from 'react-hot-toast'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import Head from 'next/head'
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
@@ -52,6 +53,14 @@ function MyApp({ Component, pageProps }) {
       <ApolloProvider client={client}>
         <WagmiConfig client={wagmiClient}>
           <RainbowKitProvider chains={chains}>
+            <Head>
+              <title>cryptip.me</title>
+              <meta
+                name='description'
+                content='The friendly way to accept tips in ETH.'
+              />
+              <link rel='icon' href='/favicon.ico' />
+            </Head>
             <div className='min-h-screen w-full'>
               <Header />
               <Component {...pageProps} />
