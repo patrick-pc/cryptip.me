@@ -151,7 +151,9 @@ const ProfileCard = ({ cryptipContract, address, ensName, setIsTipSent }) => {
               copyAddress(address)
             }}
           >
-            <h1 className='text-xl font-bold'>{shortenAddress(address)}</h1>
+            <h1 className='text-xl font-bold'>
+              {address ? shortenAddress(address) : '0x0'}
+            </h1>
           </div>
         ) : (
           <>
@@ -164,7 +166,7 @@ const ProfileCard = ({ cryptipContract, address, ensName, setIsTipSent }) => {
               }}
             >
               <span className='bg-base-200 rounded-md text-xs font-mono py-1 px-2'>
-                {shortenAddress(address)}
+                {address ? shortenAddress(address) : '0x0'}
               </span>
             </div>
           </>
