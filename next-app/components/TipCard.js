@@ -21,10 +21,7 @@ const TipCard = ({ tip }) => {
           </div>
           <div className='flex items-center text-2xs text-gray-400 font-light gap-2'>
             {moment(tip.timestamp * 1000).fromNow()}
-            <a
-              href={`https://rinkeby.etherscan.io/tx/${tip.txHash}`}
-              target='_blank'
-            >
+            <a href={`https://etherscan.io/tx/${tip.txHash}`} target='_blank'>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 className='h-4 w-4 text-gray-500'

@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = '0x0fE34442DE8D6127cfBB6Bfb4C0481E588eF9720'
+export const CONTRACT_ADDRESS = '0xA9453F980C0C7a9b56f8347D4c4532869f119b01'
 export const ABI = [
   {
     inputs: [],
@@ -33,12 +33,6 @@ export const ABI = [
       },
       {
         indexed: false,
-        internalType: 'uint256',
-        name: 'timestamp',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
         internalType: 'string',
         name: 'name',
         type: 'string',
@@ -57,7 +51,7 @@ export const ABI = [
     inputs: [
       {
         internalType: 'address',
-        name: '_address',
+        name: 'walletAddress',
         type: 'address',
       },
     ],

@@ -4,5 +4,5 @@ export const socialData = {
   GITHUB: 'https://github.com/web3slinger',
   CRYPTIP_GITHUB: 'https://github.com/web3slinger/cryptip.me',
   CRYPTIP_CONTRACT_ADDRESS:
-    'https://rinkeby.etherscan.io/address/0x0fE34442DE8D6127cfBB6Bfb4C0481E588eF9720',
+    'https://etherscan.io/address/0xA9453F980C0C7a9b56f8347D4c4532869f119b01',
 }
