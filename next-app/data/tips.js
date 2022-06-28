@@ -16,6 +16,7 @@ export const getTips = ({ address, limit }) => {
         timestamp
         name
         message
+        txHash
       }
     }
   `

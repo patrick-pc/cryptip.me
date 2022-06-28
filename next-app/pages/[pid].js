@@ -32,6 +32,7 @@ const Profile = () => {
   const { data } = getTips({ address, limit: 10 })
 
   // Listen to tip event
+  // Could refetch the data from the subgraph query but it takes too long
   useEffect(() => {
     if (data) setTipList(data.tips)
 
@@ -39,19 +40,29 @@ const Profile = () => {
       // Tip event
       cryptipContract.on(
         'Tip',
-        (receiver, sender, amount, timestamp, name, message) => {
+        (receiver, sender, amount, name, message, event, data) => {
           const tip = {
-            id: 0,
+            id: `${event.transactionHash}-${event.logIndex}`,
             receiver,
             sender,
             amount,
-            timestamp,
             name,
             message,
+            timestamp: Date.now() / 1000,
+            txHash: event.transactionHash,
           }
 
-          const tipListCopy = [...tipList]
-          tipListCopy.splice(0, 1, tip)
+          let tipListCopy = []
+          if (tipList.length == 0) {
+            tipListCopy.push(tip)
+          } else if (tipList.length >= 10) {
+            tipListCopy = [...tipList]
+            tipListCopy.splice(0, 0, tip)
+            tipListCopy.pop()
+          } else {
+            tipListCopy = [...tipList]
+            tipListCopy.splice(0, 0, tip)
+          }
           setTipList(tipListCopy)
         }
       )
