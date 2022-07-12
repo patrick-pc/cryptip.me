@@ -22,7 +22,15 @@ const Footer = () => {
         target='_blank'
         className='opacity-75 hover:opacity-100'
       >
-        🕷 built by web3slinger
+        🕷 made by web3slinger
+      </a>
+
+      <a
+        href={socialData.FLATICON}
+        target='_blank'
+        className='text-xs font-light opacity-75 hover:opacity-100'
+      >
+        Logo by Freepik - Flaticon
       </a>
     </footer>
   )

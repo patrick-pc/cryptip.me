@@ -13,7 +13,7 @@ const Hero = () => {
         <span className='bg-white text-lg font-medium'>cryptip.me/</span>
         <input
           type='text'
-          className='text-lg font-light px-1 outline-none w-full'
+          className='bg-base-100 text-lg font-light outline-none w-full px-1'
           placeholder='your-ens-or-wallet-address'
           onChange={(e) => setAddress(e.target.value)}
         />
