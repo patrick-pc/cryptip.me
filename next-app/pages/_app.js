@@ -59,6 +59,10 @@ function MyApp({ Component, pageProps }) {
                 name='description'
                 content='The friendly way to accept tips in ETH.'
               />
+              <meta
+                name='viewport'
+                content='width=device-width, initial-scale=1, maximum-scale=1'
+              />
               <link rel='icon' href='/ethereum.png' />
             </Head>
             <div className='min-h-screen w-full'>
