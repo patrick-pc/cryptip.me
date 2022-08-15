@@ -13,7 +13,7 @@ class AppDocument extends Document {
           <meta property='og:url' content='https://cryptip.me' />
           <meta property='og:site_name' content='cryptip.me' />
           <meta property='og:image' content='/ethereum.png' />
-          <meta name='theme-color' content='#FFFFFF' />
+          <meta name='theme-color' content='#F1F2F2' />
           <meta name='twitter:card' content='summary' />
           <meta
             name='twitter:image'
